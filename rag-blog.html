@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>RAG in 2025 — The Architecture Rewriting AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --ink: #0d0d0d;
+    --paper: #faf8f3;
+    --accent: #e8623a;
+    --accent2: #2d6a9f;
+    --muted: #6b6560;
+    --border: #e0dbd2;
+    --code-bg: #1a1a2e;
+    --highlight: #fff3cd;
+    --green: #2d9e6b;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 18px;
+    line-height: 1.8;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 80px 40px 60px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 80% at 80% 20%, rgba(232,98,58,0.18) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 60% at 10% 80%, rgba(45,106,159,0.15) 0%, transparent 60%);
+  }
+
+  .hero-inner {
+    max-width: 780px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .tag {
+    display: inline-block;
+    background: var(--accent);
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 2px;
+    margin-bottom: 28px;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(38px, 6vw, 72px);
+    font-weight: 900;
+    line-height: 1.05;
+    margin-bottom: 24px;
+    letter-spacing: -1px;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    font-size: 20px;
+    color: rgba(250,248,243,0.7);
+    max-width: 540px;
+    line-height: 1.6;
+    margin-bottom: 40px;
+  }
+
+  .byline {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border-top: 1px solid rgba(255,255,255,0.12);
+    padding-top: 28px;
+  }
+
+  .avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+    color: white;
+    flex-shrink: 0;
+  }
+
+  .byline-text { font-size: 14px; color: rgba(250,248,243,0.6); }
+  .byline-text strong { color: rgba(250,248,243,0.9); display: block; font-size: 15px; }
+
+  .hero-stats {
+    display: flex;
+    gap: 28px;
+    margin-top: 12px;
+  }
+
+  .stat { font-size: 13px; color: rgba(250,248,243,0.45); }
+
+  /* ── VISUAL BANNER ── */
+  .visual-banner {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    padding: 60px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .visual-banner::after {
+    content: 'RAG';
+    position: absolute;
+    right: -20px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'Playfair Display', serif;
+    font-size: 200px;
+    font-weight: 900;
+    color: rgba(255,255,255,0.03);
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  .arch-diagram {
+    max-width: 780px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .arch-diagram svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* ── ARTICLE BODY ── */
+  article {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 60px 40px;
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px;
+    font-weight: 700;
+    margin: 60px 0 20px;
+    line-height: 1.2;
+    letter-spacing: -0.5px;
+  }
+
+  h2 .num {
+    color: var(--accent);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 8px;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    font-weight: 700;
+    margin: 36px 0 14px;
+  }
+
+  p { margin-bottom: 22px; color: #1a1a1a; }
+
+  .lead {
+    font-size: 22px;
+    font-weight: 300;
+    line-height: 1.7;
+    color: #2a2a2a;
+    margin-bottom: 36px;
+    border-left: 4px solid var(--accent);
+    padding-left: 24px;
+  }
+
+  /* ── PULL QUOTE ── */
+  blockquote {
+    margin: 48px -40px;
+    padding: 40px 60px;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-style: italic;
+    line-height: 1.4;
+    position: relative;
+  }
+
+  blockquote::before {
+    content: '\201C';
+    position: absolute;
+    top: 10px;
+    left: 24px;
+    font-size: 80px;
+    color: var(--accent);
+    line-height: 1;
+    font-style: normal;
+  }
+
+  /* ── CALLOUT BOXES ── */
+  .callout {
+    border-radius: 8px;
+    padding: 24px 28px;
+    margin: 32px 0;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .callout.info { background: #e8f4fd; border-left: 4px solid var(--accent2); }
+  .callout.warn { background: #fff8e6; border-left: 4px solid #f5a623; }
+  .callout.success { background: #e8f8f0; border-left: 4px solid var(--green); }
+
+  .callout-icon { font-size: 22px; flex-shrink: 0; margin-top: 2px; }
+  .callout-body { font-size: 16px; line-height: 1.6; }
+  .callout-body strong { display: block; margin-bottom: 4px; font-size: 15px; }
+
+  /* ── CODE BLOCKS ── */
+  .code-wrapper {
+    margin: 32px -20px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  }
+
+  .code-header {
+    background: #252545;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .code-header .dots {
+    display: flex;
+    gap: 6px;
+  }
+
+  .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+  }
+  .dot.red { background: #ff5f57; }
+  .dot.yellow { background: #febc2e; }
+  .dot.green { background: #28c840; }
+
+  .code-filename {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+  }
+
+  pre {
+    background: var(--code-bg);
+    padding: 28px 24px;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13.5px;
+    line-height: 1.7;
+    color: #e8eaf6;
+  }
+
+  .kw { color: #c792ea; }
+  .fn { color: #82aaff; }
+  .st { color: #c3e88d; }
+  .cm { color: #546e7a; font-style: italic; }
+  .nu { color: #f78c6c; }
+  .cl { color: #ffcb6b; }
+  .imp { color: #89ddff; }
+
+  /* ── STAT CARDS ── */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin: 40px 0;
+  }
+
+  .stat-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px 24px;
+    text-align: center;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--accent);
+  }
+
+  .stat-card.blue::before { background: var(--accent2); }
+  .stat-card.green::before { background: var(--green); }
+
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 48px;
+    font-weight: 900;
+    line-height: 1;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+
+  .stat-label {
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 500;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── COMPARISON TABLE ── */
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 32px 0;
+    font-size: 15px;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+  }
+
+  .compare-table th {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 14px 20px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+  }
+
+  .compare-table td {
+    padding: 13px 20px;
+    border-bottom: 1px solid var(--border);
+    background: white;
+    vertical-align: top;
+    line-height: 1.5;
+  }
+
+  .compare-table tr:last-child td { border-bottom: none; }
+  .compare-table tr:hover td { background: #f9f7f2; }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .badge.yes { background: #d4edda; color: #155724; }
+  .badge.no { background: #f8d7da; color: #721c24; }
+  .badge.partial { background: #fff3cd; color: #856404; }
+
+  /* ── USE CASE CARDS ── */
+  .usecase-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin: 36px 0;
+  }
+
+  .usecase-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .usecase-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  }
+
+  .uc-icon {
+    font-size: 36px;
+    margin-bottom: 14px;
+    display: block;
+  }
+
+  .uc-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  .uc-body {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .uc-company {
+    margin-top: 14px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent2);
+    letter-spacing: 0.5px;
+  }
+
+  /* ── DIVIDER ── */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 48px 0;
+  }
+
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .divider span {
+    color: var(--muted);
+    font-size: 18px;
+  }
+
+  /* ── PIPELINE VISUAL ── */
+  .pipeline {
+    background: linear-gradient(135deg, #0f0f23, #1a1a3e);
+    border-radius: 16px;
+    padding: 40px 32px;
+    margin: 36px -20px;
+    overflow-x: auto;
+  }
+
+  .pipeline-flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    min-width: 600px;
+  }
+
+  .pipe-step {
+    flex: 1;
+    text-align: center;
+  }
+
+  .pipe-box {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    padding: 16px 10px;
+    margin: 0 4px;
+    position: relative;
+  }
+
+  .pipe-box.highlight { border-color: var(--accent); background: rgba(232,98,58,0.12); }
+  .pipe-box.highlight2 { border-color: #82aaff; background: rgba(130,170,255,0.1); }
+
+  .pipe-icon { font-size: 28px; margin-bottom: 8px; display: block; }
+
+  .pipe-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.7);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .pipe-arrow {
+    color: rgba(255,255,255,0.25);
+    font-size: 20px;
+    flex-shrink: 0;
+    margin: 0 -4px;
+  }
+
+  .pipe-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    color: white;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  /* ── FUTURE SECTION ── */
+  .future-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin: 32px 0;
+  }
+
+  .future-card {
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 22px 18px;
+    position: relative;
+  }
+
+  .future-card::before {
+    content: attr(data-year);
+    position: absolute;
+    top: -12px;
+    left: 16px;
+    background: var(--paper);
+    padding: 0 8px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 1px;
+  }
+
+  .future-card h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+
+  .future-card p {
+    font-size: 13px;
+    color: var(--muted);
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  /* ── FOOTER ── */
+  .article-footer {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 60px 40px;
+    margin-top: 80px;
+  }
+
+  .article-footer-inner {
+    max-width: 780px;
+    margin: 0 auto;
+  }
+
+  .footer-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    margin-bottom: 16px;
+    font-style: italic;
+  }
+
+  .footer-sub {
+    color: rgba(255,255,255,0.5);
+    font-size: 15px;
+    margin-bottom: 32px;
+  }
+
+  .tags-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .tag-pill {
+    border: 1px solid rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.6);
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  /* ── READING PROGRESS ── */
+  #progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    background: var(--accent);
+    width: 0%;
+    z-index: 999;
+    transition: width 0.1s;
+  }
+
+  /* ── INLINE CODE ── */
+  code {
+    background: #f0ece3;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    padding: 2px 7px;
+    border-radius: 4px;
+    color: #c0392b;
+  }
+
+  @media (max-width: 640px) {
+    .stat-grid { grid-template-columns: 1fr; }
+    .usecase-grid { grid-template-columns: 1fr; }
+    .future-grid { grid-template-columns: 1fr; }
+    blockquote { margin: 32px 0; padding: 28px 32px; font-size: 22px; }
+    article { padding: 40px 24px; }
+    .hero { padding: 60px 24px 48px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<!-- ── HERO ── -->
+<header class="hero">
+  <div class="hero-inner">
+    <span class="tag">AI Engineering · 2025</span>
+    <h1>Retrieval-Augmented<br/><em>Generation</em> is<br/>Rewriting AI</h1>
+    <p class="hero-sub">How RAG became the backbone of production AI — and why every engineer needs to understand it now.</p>
+    <div class="byline">
+      <div class="avatar">R</div>
+      <div class="byline-text">
+        <strong>Rahul Raj</strong>
+        AI Engineer · LLM Practitioner
+      </div>
+    </div>
+    <div class="hero-stats">
+      <span class="stat">⏱ 12 min read</span>
+      <span class="stat">📅 April 2025</span>
+      <span class="stat">🏷 LangChain · Python · LLMs</span>
+    </div>
+  </div>
+</header>
+
+<!-- ── ARCHITECTURE DIAGRAM ── -->
+<div class="visual-banner">
+  <div class="arch-diagram">
+    <svg viewBox="0 0 760 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- User -->
+      <rect x="10" y="80" width="110" height="60" rx="8" fill="#1e2a3a" stroke="#4a90d9" stroke-width="1.5"/>
+      <text x="65" y="105" text-anchor="middle" fill="#89c4f4" font-size="11" font-family="JetBrains Mono">USER</text>
+      <text x="65" y="120" text-anchor="middle" fill="#e8eaf6" font-size="10" font-family="JetBrains Mono">Query</text>
+
+      <!-- Arrow 1 -->
+      <line x1="122" y1="110" x2="158" y2="110" stroke="#4a90d9" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <polygon points="158,106 166,110 158,114" fill="#4a90d9"/>
+
+      <!-- Retriever -->
+      <rect x="168" y="70" width="130" height="80" rx="8" fill="#1e3a2a" stroke="#2d9e6b" stroke-width="1.5"/>
+      <text x="233" y="98" text-anchor="middle" fill="#7ecba1" font-size="11" font-family="JetBrains Mono">RETRIEVER</text>
+      <text x="233" y="115" text-anchor="middle" fill="#e8eaf6" font-size="10" font-family="JetBrains Mono">Vector Search</text>
+      <text x="233" y="130" text-anchor="middle" fill="#546e7a" font-size="9" font-family="JetBrains Mono">Top-k docs</text>
+
+      <!-- Arrow 2 -->
+      <line x1="300" y1="110" x2="336" y2="110" stroke="#2d9e6b" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <polygon points="336,106 344,110 336,114" fill="#2d9e6b"/>
+
+      <!-- Knowledge Base -->
+      <rect x="168" y="168" width="130" height="44" rx="8" fill="#2a1e3a" stroke="#9c89d4" stroke-width="1.5"/>
+      <text x="233" y="188" text-anchor="middle" fill="#c3aff5" font-size="10" font-family="JetBrains Mono">VECTOR DB</text>
+      <text x="233" y="203" text-anchor="middle" fill="#546e7a" font-size="9" font-family="JetBrains Mono">Embeddings</text>
+
+      <!-- Arrow KB to Retriever -->
+      <line x1="233" y1="168" x2="233" y2="152" stroke="#9c89d4" stroke-width="1.5" stroke-dasharray="3,3"/>
+      <polygon points="229,152 233,144 237,152" fill="#9c89d4"/>
+
+      <!-- Augmented Prompt -->
+      <rect x="346" y="70" width="130" height="80" rx="8" fill="#3a2a1e" stroke="#e8623a" stroke-width="2"/>
+      <text x="411" y="95" text-anchor="middle" fill="#f4a374" font-size="10" font-family="JetBrains Mono">AUGMENTED</text>
+      <text x="411" y="109" text-anchor="middle" fill="#f4a374" font-size="10" font-family="JetBrains Mono">PROMPT</text>
+      <text x="411" y="126" text-anchor="middle" fill="#e8eaf6" font-size="9" font-family="JetBrains Mono">Query + Context</text>
+      <text x="411" y="140" text-anchor="middle" fill="#546e7a" font-size="9" font-family="JetBrains Mono">Injected docs</text>
+
+      <!-- Arrow 3 -->
+      <line x1="478" y1="110" x2="514" y2="110" stroke="#e8623a" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <polygon points="514,106 522,110 514,114" fill="#e8623a"/>
+
+      <!-- LLM -->
+      <rect x="524" y="70" width="110" height="80" rx="8" fill="#2a1e1e" stroke="#f0674c" stroke-width="2"/>
+      <text x="579" y="98" text-anchor="middle" fill="#f4a374" font-size="11" font-family="JetBrains Mono">LLM</text>
+      <text x="579" y="115" text-anchor="middle" fill="#e8eaf6" font-size="10" font-family="JetBrains Mono">GPT / Claude</text>
+      <text x="579" y="130" text-anchor="middle" fill="#546e7a" font-size="9" font-family="JetBrains Mono">Llama / Gemini</text>
+
+      <!-- Arrow 4 -->
+      <line x1="636" y1="110" x2="672" y2="110" stroke="#f0674c" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <polygon points="672,106 680,110 672,114" fill="#f0674c"/>
+
+      <!-- Response -->
+      <rect x="682" y="80" width="74" height="60" rx="8" fill="#1a2e1a" stroke="#2d9e6b" stroke-width="1.5"/>
+      <text x="719" y="105" text-anchor="middle" fill="#7ecba1" font-size="10" font-family="JetBrains Mono">OUTPUT</text>
+      <text x="719" y="120" text-anchor="middle" fill="#e8eaf6" font-size="9" font-family="JetBrains Mono">Answer</text>
+
+      <!-- Labels at bottom -->
+      <text x="383" y="200" text-anchor="middle" fill="rgba(255,255,255,0.25)" font-size="10" font-family="DM Sans">RAG Pipeline Architecture</text>
+    </svg>
+  </div>
+</div>
+
+<!-- ── ARTICLE ── -->
+<article>
+
+  <!-- INTRO -->
+  <p class="lead">Large Language Models are powerful, but they have a critical flaw: they don't know what they don't know — and they'll confidently make it up. RAG is the fix that made AI deployable at enterprise scale.</p>
+
+  <p>When OpenAI released GPT-3 in 2020, the world was amazed. When ChatGPT launched in late 2022, the world went wild. But behind the scenes, engineers building real products kept hitting the same wall: <strong>LLMs hallucinate.</strong> They confidently produce wrong answers, cite fake papers, and invent company policies that don't exist.</p>
+
+  <p>Retrieval-Augmented Generation — RAG — is the architectural pattern that changed everything. Instead of relying solely on what the model memorized during training, we <em>retrieve</em> relevant information at inference time and inject it into the prompt. The model reasons over real, up-to-date context. Hallucinations drop. Accuracy soars.</p>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-num">63%</div>
+      <div class="stat-label">reduction in hallucination rate with RAG vs baseline LLM</div>
+    </div>
+    <div class="stat-card blue">
+      <div class="stat-num">$4.7B</div>
+      <div class="stat-label">projected RAG market size by 2028 (MarketsandMarkets)</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-num">82%</div>
+      <div class="stat-label">of Fortune 500 AI deployments now use some form of RAG</div>
+    </div>
+  </div>
+
+  <div class="divider"><span>§</span></div>
+
+  <!-- SECTION 1 -->
+  <h2><span class="num">01 — What Is RAG</span>The Architecture in Plain English</h2>
+
+  <p>RAG was formally introduced by Lewis et al. at Facebook AI in their 2020 paper <em>"Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks."</em> The concept is elegant: give the model a search engine before it answers.</p>
+
+  <p>The classic RAG pipeline has three stages:</p>
+
+  <div class="pipeline">
+    <div class="pipeline-flow">
+      <div class="pipe-step">
+        <div class="pipe-box">
+          <span class="pipe-icon">📄</span>
+          <div class="pipe-title">Documents</div>
+          <div class="pipe-label">Source data</div>
+        </div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step">
+        <div class="pipe-box highlight2">
+          <span class="pipe-icon">🔢</span>
+          <div class="pipe-title">Embed</div>
+          <div class="pipe-label">Vectorize</div>
+        </div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step">
+        <div class="pipe-box">
+          <span class="pipe-icon">🗄️</span>
+          <div class="pipe-title">Vector DB</div>
+          <div class="pipe-label">Store chunks</div>
+        </div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step">
+        <div class="pipe-box highlight">
+          <span class="pipe-icon">🔍</span>
+          <div class="pipe-title">Retrieve</div>
+          <div class="pipe-label">Top-k search</div>
+        </div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step">
+        <div class="pipe-box">
+          <span class="pipe-icon">🧠</span>
+          <div class="pipe-title">Generate</div>
+          <div class="pipe-label">LLM answers</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>Capability</th>
+        <th>Vanilla LLM</th>
+        <th>Fine-tuned LLM</th>
+        <th>RAG</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Up-to-date knowledge</td>
+        <td><span class="badge no">No</span></td>
+        <td><span class="badge no">No</span></td>
+        <td><span class="badge yes">Yes</span></td>
+      </tr>
+      <tr>
+        <td>Cites sources</td>
+        <td><span class="badge no">No</span></td>
+        <td><span class="badge no">No</span></td>
+        <td><span class="badge yes">Yes</span></td>
+      </tr>
+      <tr>
+        <td>Domain adaptation cost</td>
+        <td><span class="badge yes">Zero</span></td>
+        <td><span class="badge no">High</span></td>
+        <td><span class="badge partial">Low</span></td>
+      </tr>
+      <tr>
+        <td>Hallucination control</td>
+        <td><span class="badge no">Poor</span></td>
+        <td><span class="badge partial">Medium</span></td>
+        <td><span class="badge yes">Strong</span></td>
+      </tr>
+      <tr>
+        <td>Private data support</td>
+        <td><span class="badge no">No</span></td>
+        <td><span class="badge partial">Partial</span></td>
+        <td><span class="badge yes">Yes</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="divider"><span>§</span></div>
+
+  <!-- SECTION 2 — CODE -->
+  <h2><span class="num">02 — Implementation</span>Building a RAG Pipeline with LangChain</h2>
+
+  <p>Let's build a production-ready RAG system from scratch. We'll index a set of PDF documents, store embeddings in a vector database, and expose a question-answering chain.</p>
+
+  <div class="callout info">
+    <span class="callout-icon">📦</span>
+    <div class="callout-body">
+      <strong>Prerequisites</strong>
+      <code>pip install langchain langchain-openai chromadb pypdf tiktoken</code>
+    </div>
+  </div>
+
+  <h3>Step 1 — Document Ingestion & Chunking</h3>
+
+  <div class="code-wrapper">
+    <div class="code-header">
+      <div class="dots">
+        <div class="dot red"></div>
+        <div class="dot yellow"></div>
+        <div class="dot green"></div>
+      </div>
+      <span class="code-filename">rag_ingest.py</span>
+    </div>
+    <pre><span class="kw">from</span> langchain.document_loaders <span class="kw">import</span> PyPDFDirectoryLoader
+<span class="kw">from</span> langchain.text_splitter <span class="kw">import</span> RecursiveCharacterTextSplitter
+<span class="kw">from</span> langchain_openai <span class="kw">import</span> OpenAIEmbeddings
+<span class="kw">from</span> langchain.vectorstores <span class="kw">import</span> Chroma
+
+<span class="cm"># ── Load documents from a directory of PDFs ──────────────────</span>
+loader = <span class="cl">PyPDFDirectoryLoader</span>(<span class="st">"./docs"</span>)
+documents = loader.<span class="fn">load</span>()
+<span class="fn">print</span>(<span class="st">f"Loaded </span>{<span class="fn">len</span>(documents)}<span class="st"> pages from </span>{<span class="fn">len</span>(<span class="fn">set</span>(d.metadata[<span class="st">'source'</span>] <span class="kw">for</span> d <span class="kw">in</span> documents))}<span class="st"> files"</span>)
+
+<span class="cm"># ── Chunk into overlapping segments ──────────────────────────</span>
+splitter = <span class="cl">RecursiveCharacterTextSplitter</span>(
+    chunk_size=<span class="nu">1000</span>,       <span class="cm"># ~750 tokens per chunk</span>
+    chunk_overlap=<span class="nu">200</span>,     <span class="cm"># overlap prevents context loss at boundaries</span>
+    length_function=<span class="fn">len</span>,
+    add_start_index=<span class="kw">True</span>,
+)
+chunks = splitter.<span class="fn">split_documents</span>(documents)
+<span class="fn">print</span>(<span class="st">f"Split into </span>{<span class="fn">len</span>(chunks)}<span class="st"> chunks"</span>)
+
+<span class="cm"># ── Embed and store in ChromaDB ───────────────────────────────</span>
+embeddings = <span class="cl">OpenAIEmbeddings</span>(model=<span class="st">"text-embedding-3-small"</span>)
+
+vectorstore = Chroma.<span class="fn">from_documents</span>(
+    documents=chunks,
+    embedding=embeddings,
+    persist_directory=<span class="st">"./chroma_db"</span>,
+    collection_name=<span class="st">"rag_docs"</span>,
+)
+vectorstore.<span class="fn">persist</span>()
+<span class="fn">print</span>(<span class="st">"✅ Vector store built and persisted."</span>)</pre>
+  </div>
+
+  <h3>Step 2 — The Retrieval Chain</h3>
+
+  <div class="code-wrapper">
+    <div class="code-header">
+      <div class="dots">
+        <div class="dot red"></div>
+        <div class="dot yellow"></div>
+        <div class="dot green"></div>
+      </div>
+      <span class="code-filename">rag_chain.py</span>
+    </div>
+    <pre><span class="kw">from</span> langchain_openai <span class="kw">import</span> ChatOpenAI, OpenAIEmbeddings
+<span class="kw">from</span> langchain.vectorstores <span class="kw">import</span> Chroma
+<span class="kw">from</span> langchain.prompts <span class="kw">import</span> ChatPromptTemplate
+<span class="kw">from</span> langchain_core.output_parsers <span class="kw">import</span> StrOutputParser
+<span class="kw">from</span> langchain_core.runnables <span class="kw">import</span> RunnablePassthrough
+
+<span class="cm"># ── Load existing vector store ────────────────────────────────</span>
+embeddings = <span class="cl">OpenAIEmbeddings</span>(model=<span class="st">"text-embedding-3-small"</span>)
+vectorstore = <span class="cl">Chroma</span>(
+    persist_directory=<span class="st">"./chroma_db"</span>,
+    embedding_function=embeddings,
+    collection_name=<span class="st">"rag_docs"</span>,
+)
+
+<span class="cm"># ── Configure retriever ───────────────────────────────────────</span>
+retriever = vectorstore.<span class="fn">as_retriever</span>(
+    search_type=<span class="st">"mmr"</span>,           <span class="cm"># Max Marginal Relevance: diverse results</span>
+    search_kwargs={
+        <span class="st">"k"</span>: <span class="nu">5</span>,                 <span class="cm"># retrieve top 5 chunks</span>
+        <span class="st">"fetch_k"</span>: <span class="nu">20</span>,           <span class="cm"># candidate pool for MMR</span>
+        <span class="st">"lambda_mult"</span>: <span class="nu">0.7</span>,     <span class="cm"># diversity weight</span>
+    }
+)
+
+<span class="cm"># ── Prompt template ───────────────────────────────────────────</span>
+PROMPT_TEMPLATE = <span class="st">"""You are a helpful AI assistant. Answer the question
+based ONLY on the following context. If the context doesn't contain
+the answer, say "I don't have enough information."
+
+Context:
+{context}
+
+Question: {question}
+
+Provide a clear, accurate answer with specific details from the context.
+Cite relevant sections when useful."""</span>
+
+prompt = <span class="cl">ChatPromptTemplate</span>.<span class="fn">from_template</span>(PROMPT_TEMPLATE)
+llm = <span class="cl">ChatOpenAI</span>(model=<span class="st">"gpt-4o"</span>, temperature=<span class="nu">0</span>)
+
+<span class="cm"># ── Build the chain using LCEL ────────────────────────────────</span>
+<span class="kw">def</span> <span class="fn">format_docs</span>(docs):
+    <span class="kw">return</span> <span class="st">"\n\n---\n\n"</span>.<span class="fn">join</span>(
+        <span class="st">f"[Source: {d.metadata.get('source','?')}, p.{d.metadata.get('page','?')}]\n{d.page_content}"</span>
+        <span class="kw">for</span> d <span class="kw">in</span> docs
+    )
+
+rag_chain = (
+    {<span class="st">"context"</span>: retriever | <span class="fn">format_docs</span>, <span class="st">"question"</span>: <span class="cl">RunnablePassthrough</span>()}
+    | prompt
+    | llm
+    | <span class="cl">StrOutputParser</span>()
+)
+
+<span class="cm"># ── Query it ──────────────────────────────────────────────────</span>
+query = <span class="st">"What are the key risks mentioned in the annual report?"</span>
+answer = rag_chain.<span class="fn">invoke</span>(query)
+<span class="fn">print</span>(answer)</pre>
+  </div>
+
+  <h3>Step 3 — Advanced: Hybrid Search + Reranking</h3>
+
+  <div class="callout warn">
+    <span class="callout-icon">⚡</span>
+    <div class="callout-body">
+      <strong>Production tip</strong>
+      Pure vector search misses exact keyword matches. Hybrid search combines dense (semantic) + sparse (BM25) retrieval for best results.
+    </div>
+  </div>
+
+  <div class="code-wrapper">
+    <div class="code-header">
+      <div class="dots">
+        <div class="dot red"></div>
+        <div class="dot yellow"></div>
+        <div class="dot green"></div>
+      </div>
+      <span class="code-filename">hybrid_rag.py</span>
+    </div>
+    <pre><span class="kw">from</span> langchain.retrievers <span class="kw">import</span> BM25Retriever, EnsembleRetriever
+<span class="kw">from</span> langchain.retrievers.document_compressors <span class="kw">import</span> CrossEncoderReranker
+<span class="kw">from</span> langchain.retrievers <span class="kw">import</span> ContextualCompressionRetriever
+<span class="kw">from</span> langchain_community.cross_encoders <span class="kw">import</span> HuggingFaceCrossEncoder
+
+<span class="cm"># ── Sparse retriever (keyword-based BM25) ─────────────────────</span>
+bm25_retriever = <span class="cl">BM25Retriever</span>.<span class="fn">from_documents</span>(chunks)
+bm25_retriever.k = <span class="nu">5</span>
+
+<span class="cm"># ── Dense retriever (semantic) ────────────────────────────────</span>
+dense_retriever = vectorstore.<span class="fn">as_retriever</span>(search_kwargs={<span class="st">"k"</span>: <span class="nu">5</span>})
+
+<span class="cm"># ── Hybrid: 40% BM25 + 60% dense ─────────────────────────────</span>
+ensemble_retriever = <span class="cl">EnsembleRetriever</span>(
+    retrievers=[bm25_retriever, dense_retriever],
+    weights=[<span class="nu">0.4</span>, <span class="nu">0.6</span>]
+)
+
+<span class="cm"># ── Reranker: score with cross-encoder for final precision ────</span>
+cross_encoder = <span class="cl">HuggingFaceCrossEncoder</span>(
+    model_name=<span class="st">"cross-encoder/ms-marco-MiniLM-L-6-v2"</span>
+)
+compressor = <span class="cl">CrossEncoderReranker</span>(model=cross_encoder, top_n=<span class="nu">3</span>)
+
+final_retriever = <span class="cl">ContextualCompressionRetriever</span>(
+    base_compressor=compressor,
+    base_retriever=ensemble_retriever,
+)</pre>
+  </div>
+
+  <blockquote>
+    The gap between a demo RAG and a production RAG is not the LLM — it's the retriever. Invest there first.
+  </blockquote>
+
+  <div class="divider"><span>§</span></div>
+
+  <!-- SECTION 3 — USE CASES -->
+  <h2><span class="num">03 — Real World</span>Who's Using RAG & How</h2>
+
+  <p>RAG isn't a research curiosity. It's powering real products handling millions of queries per day across every industry.</p>
+
+  <div class="usecase-grid">
+    <div class="usecase-card">
+      <span class="uc-icon">⚖️</span>
+      <div class="uc-title">Legal Research</div>
+      <p class="uc-body">Law firms index thousands of case files and precedents. Lawyers query in natural language — "find cases where fair use was invoked for AI training data" — and get precise citations.</p>
+      <div class="uc-company">→ Harvey AI, Casetext, Westlaw AI</div>
+    </div>
+    <div class="usecase-card">
+      <span class="uc-icon">🏥</span>
+      <div class="uc-title">Clinical Decision Support</div>
+      <p class="uc-body">Physicians query patient records, drug interaction databases, and clinical guidelines simultaneously. RAG ensures answers are grounded in verified medical literature.</p>
+      <div class="uc-company">→ Epic Systems, Google Med-PaLM 2</div>
+    </div>
+    <div class="usecase-card">
+      <span class="uc-icon">💬</span>
+      <div class="uc-title">Enterprise Chatbots</div>
+      <p class="uc-body">Internal knowledge bases, HR policies, IT documentation — employees ask questions and get accurate answers from company-specific data, not generic LLM responses.</p>
+      <div class="uc-company">→ Notion AI, Confluence, ServiceNow</div>
+    </div>
+    <div class="usecase-card">
+      <span class="uc-icon">💰</span>
+      <div class="uc-title">Financial Analysis</div>
+      <p class="uc-body">Analysts query earnings calls, 10-K filings, and market reports. RAG pulls the specific numbers and qualitative statements to generate accurate investment summaries.</p>
+      <div class="uc-company">→ Bloomberg GPT, Morgan Stanley AI</div>
+    </div>
+  </div>
+
+  <div class="callout success">
+    <span class="callout-icon">✅</span>
+    <div class="callout-body">
+      <strong>Case study: Klarna's Support Bot</strong>
+      Klarna deployed a RAG-powered support assistant that handles 2.3 million conversations monthly, equivalent to 700 full-time agents, with a 25% higher satisfaction score than human agents on routine queries.
+    </div>
+  </div>
+
+  <div class="divider"><span>§</span></div>
+
+  <!-- SECTION 4 — FUTURE -->
+  <h2><span class="num">04 — What's Next</span>The Future of RAG</h2>
+
+  <p>We're still in early innings. The RAG landscape is evolving at a pace that makes 2023's techniques feel prehistoric.</p>
+
+  <div class="future-grid">
+    <div class="future-card" data-year="NOW — 2025">
+      <h4>Agentic RAG</h4>
+      <p>The retriever becomes an agent. It decides <em>what</em> to retrieve, <em>when</em> to retrieve it, and can issue multiple queries iteratively.</p>
+    </div>
+    <div class="future-card" data-year="2025 — 2026">
+      <h4>Multimodal RAG</h4>
+      <p>Retrieve and reason over images, audio, video, and structured tables — not just text. GPT-4V and Gemini 1.5 are early previews.</p>
+    </div>
+    <div class="future-card" data-year="2026+">
+      <h4>Self-Improving RAG</h4>
+      <p>Systems that learn from user feedback to improve retrieval strategies autonomously, closing the loop between usage and accuracy.</p>
+    </div>
+  </div>
+
+  <p>The direction is clear: RAG is converging with <strong>agentic architectures</strong>. Tools like LangGraph and AutoGen are building systems where the retrieval step is just one node in a larger reasoning graph. The model decides when it needs more information, what to search for, and how to synthesize multi-step retrieved context.</p>
+
+  <div class="divider"><span>§</span></div>
+
+  <!-- SECTION 5 — GOTCHAS -->
+  <h2><span class="num">05 — The Pitfalls</span>What Nobody Tells You About RAG</h2>
+
+  <p>RAG sounds simple. In practice, every step is a failure mode.</p>
+
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>Stage</th>
+        <th>Common Failure</th>
+        <th>Fix</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Chunking</strong></td>
+        <td>Chunks split mid-sentence, losing context</td>
+        <td>Use semantic chunking or larger overlap</td>
+      </tr>
+      <tr>
+        <td><strong>Embedding</strong></td>
+        <td>Generic embeddings miss domain terminology</td>
+        <td>Fine-tune embeddings on your domain data</td>
+      </tr>
+      <tr>
+        <td><strong>Retrieval</strong></td>
+        <td>Top-k returns irrelevant chunks</td>
+        <td>Add reranking with cross-encoders</td>
+      </tr>
+      <tr>
+        <td><strong>Prompt</strong></td>
+        <td>LLM ignores retrieved context, uses prior knowledge</td>
+        <td>Stronger system prompt: "ONLY use the context below"</td>
+      </tr>
+      <tr>
+        <td><strong>Generation</strong></td>
+        <td>Answer correct but source not cited</td>
+        <td>Instruct model to cite chunk IDs in output</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout info">
+    <span class="callout-icon">🎯</span>
+    <div class="callout-body">
+      <strong>Evaluation is non-negotiable</strong>
+      Use RAGAS (Retrieval-Augmented Generation Assessment) to measure faithfulness, answer relevancy, context recall, and context precision on a held-out test set before shipping to production.
+    </div>
+  </div>
+
+</article>
+
+<!-- ── FOOTER ── -->
+<footer class="article-footer">
+  <div class="article-footer-inner">
+    <div class="footer-title">Ready to build?</div>
+    <p class="footer-sub">The full code for this RAG pipeline is available on GitHub. Star it if it helped you ship something real.</p>
+    <div class="tags-row">
+      <span class="tag-pill">RAG</span>
+      <span class="tag-pill">LangChain</span>
+      <span class="tag-pill">Python</span>
+      <span class="tag-pill">LLMs</span>
+      <span class="tag-pill">Vector Search</span>
+      <span class="tag-pill">AI Engineering</span>
+      <span class="tag-pill">ChromaDB</span>
+      <span class="tag-pill">OpenAI</span>
+      <span class="tag-pill">MLOps</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Reading progress bar
+  window.addEventListener('scroll', () => {
+    const doc = document.documentElement;
+    const scrolled = doc.scrollTop;
+    const total = doc.scrollHeight - doc.clientHeight;
+    document.getElementById('progress-bar').style.width = (scrolled / total * 100) + '%';
+  });
+</script>
+</body>
+</html>
